@@ -47,6 +47,7 @@ export async function POST(request: NextRequest) {
   const calendar = getCalendarClient();
   const event = await calendar.events.insert({
     calendarId: "primary",
+    sendUpdates: "all", // actually sends the invite email to the client
     requestBody: {
       summary: `Gel-X — ${booking.client_name}`,
       description:
@@ -57,6 +58,7 @@ export async function POST(request: NextRequest) {
         `Email: ${booking.client_email}`,
       start: { dateTime: `${booking.appointment_date}T${booking.appointment_time}`, timeZone: SALON_TZ },
       end: { dateTime: `${endDate}T${endTime}`, timeZone: SALON_TZ },
+      attendees: [{ email: booking.client_email }],
     },
   });
 

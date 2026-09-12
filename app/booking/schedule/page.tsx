@@ -128,7 +128,10 @@ function ScheduleForm() {
     }
     setSubmitError(null);
 
+    const bookingId = crypto.randomUUID();
+
     const { error: insertError } = await supabase.from("bookings").insert({
+      id: bookingId,
       client_name: name,
       client_phone: phone,
       client_email: email,
@@ -145,6 +148,15 @@ function ScheduleForm() {
       setSubmitError("Something went wrong submitting your booking. Try again.");
       return;
     }
+
+    // Best-effort — the booking is already saved even if the notification
+    // email fails, so we don't block on this.
+    fetch("/api/notify-booking", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ booking_id: bookingId }),
+    }).catch(() => {});
+
     setSubmitted(true);
   }
 
