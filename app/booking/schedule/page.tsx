@@ -209,7 +209,7 @@ function ScheduleForm() {
 
         <p className="text-sage text-sm leading-relaxed mb-6">
           Send your deposit to confirm — you&apos;ll get a calendar invite
-          once it&apos;s received.
+          once it&apos;s received. Check your spam inbox!
         </p>
 
         <div className="bg-surface rounded-xl p-6 mb-8 text-left space-y-4">
