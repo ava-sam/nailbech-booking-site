@@ -1,9 +1,7 @@
-// Her working window and appointment length — change these if either ever changes.
 export const DAILY_START = "10:00:00";
 export const DAILY_END = "20:00:00";
 export const APPOINTMENT_DURATION_MINUTES = 180; // 3 hours
-export const SLOT_INTERVAL_MINUTES = 60; // how far apart candidate start times are
-export const DAYS_AHEAD = 14; // how many days out clients can book
+export const SLOT_INTERVAL_MINUTES = 60;
 
 function timeToMinutes(time: string): number {
   const [h, m] = time.split(":").map(Number);
@@ -17,27 +15,29 @@ function minutesToTime(minutes: number): string {
   return `${pad(h)}:${pad(m)}:00`;
 }
 
-function toDateString(d: Date): string {
-  const pad = (n: number) => String(n).padStart(2, "0");
-  return `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+function pad(n: number): string {
+  return String(n).padStart(2, "0");
 }
 
-// Generates every candidate {date, time} slot for the next DAYS_AHEAD days
-// where a full appointment fits inside the daily window. This is just the
-// raw grid — calendar conflicts and existing bookings are filtered out
-// separately.
-export function generateCandidateSlots(): { date: string; time: string }[] {
+// Generates every candidate {date, time} slot for a given calendar month
+// (month is 1-indexed: January = 1). Skips any date before todayDateStr
+// (expects "YYYY-MM-DD", e.g. from pacificTodayDateString()) so past days
+// in the current month aren't offered.
+export function generateCandidateSlotsForMonth(
+  year: number,
+  month: number,
+  todayDateStr: string
+): { date: string; time: string }[] {
   const dailyStartMin = timeToMinutes(DAILY_START);
   const dailyEndMin = timeToMinutes(DAILY_END);
   const lastPossibleStart = dailyEndMin - APPOINTMENT_DURATION_MINUTES;
+  const numDays = new Date(year, month, 0).getDate(); // last day of this month
 
   const candidates: { date: string; time: string }[] = [];
-  const today = new Date();
 
-  for (let dayOffset = 0; dayOffset < DAYS_AHEAD; dayOffset++) {
-    const day = new Date(today);
-    day.setDate(day.getDate() + dayOffset);
-    const dateStr = toDateString(day);
+  for (let day = 1; day <= numDays; day++) {
+    const dateStr = `${year}-${pad(month)}-${pad(day)}`;
+    if (dateStr < todayDateStr) continue;
 
     for (
       let startMin = dailyStartMin;
