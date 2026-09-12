@@ -5,21 +5,21 @@ import { useRouter } from "next/navigation";
 import { calculatePrice, RemovalType, Length, DesignTier } from "@/lib/pricing";
 
 const REMOVAL_OPTIONS: { value: RemovalType; label: string }[] = [
-  { value: "none", label: "No removal needed" },
-  { value: "own", label: "Removal — my previous set" },
-  { value: "foreign", label: "Removal — another salon's work" },
+  { value: "none", label: "no removal needed" },
+  { value: "own", label: "removal — my previous set" },
+  { value: "foreign", label: "removal — another salon's work" },
 ];
 
 const LENGTH_OPTIONS: { value: Length; label: string }[] = [
-  { value: "short", label: "Short" },
-  { value: "medium", label: "Medium" },
-  { value: "long", label: "Long" },
+  { value: "short", label: "short" },
+  { value: "medium", label: "medium" },
+  { value: "long", label: "long" },
 ];
 
 const DESIGN_OPTIONS: { value: DesignTier; label: string; description: string }[] = [
-  { value: "simple", label: "Tier 1", description: "Simple nail art, minimal charms" },
-  { value: "standard", label: "Tier 2", description: "Complex nail art, multiple charms" },
-  { value: "intricate", label: "Tier 3", description: "Intricate nail art, 3D elements, layered designs" },
+  { value: "simple", label: "tier 1", description: "simple, minimal charms" },
+  { value: "standard", label: "tier 2", description: "complex, multiple charms" },
+  { value: "intricate", label: "tier 3", description: "intricate, 3D elements, layered designs" },
 ];
 
 export default function BookingPage() {
@@ -109,7 +109,7 @@ export default function BookingPage() {
         onClick={handleContinue}
         className="mt-8 w-full bg-lotus text-ink py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
       >
-        Continue to time slot
+        continue to time slot
       </button>
     </section>
   );
