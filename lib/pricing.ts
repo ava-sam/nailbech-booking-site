@@ -1,8 +1,5 @@
-// Pure pricing logic — no UI, no state, easy to test on its own before
-// it's wired into the booking form.
-
 export type RemovalType = "none" | "own" | "foreign";
-export type Length = "short" | "medium" | "long" | "xl";
+export type Length = "short" | "medium" | "long";
 export type DesignTier = "simple" | "standard" | "intricate";
 
 export interface PricingSelection {
@@ -11,36 +8,37 @@ export interface PricingSelection {
   designTier: DesignTier;
 }
 
-// Edit these numbers to match her real pricing — everything else in the
-// app just reads from this config, so this is the only place prices live.
 export const PRICING_CONFIG = {
   base: {
     short: 45,
-    medium: 55,
-    long: 65,
-    xl: 75,
+    medium: 50,
+    long: 60,
   } satisfies Record<Length, number>,
 
+  // Tier 1/2/3 minimums — real final price may run higher.
   designTierAdd: {
-    simple: 0,
-    standard: 15,
-    intricate: 30,
+    simple: 5,      // Tier 1: simple nail art, minimal charms
+    standard: 10,   // Tier 2: complex nail art, multiple charms
+    intricate: 15,  // Tier 3: intricate nail art, 3D elements, layered designs
   } satisfies Record<DesignTier, number>,
 
+  // PLACEHOLDER — she hasn't given real removal pricing yet. Update these
+  // once she does; nothing else needs to change.
   removalAdd: {
     none: 0,
-    own: 10,      // removal of her own previous set
-    foreign: 15,  // removal of another salon's work
+    own: 10,
+    foreign: 15,
   } satisfies Record<RemovalType, number>,
 
-  depositPercent: 0.3, // 30% deposit, adjust as needed
+  // Flat deposit regardless of total price.
+  depositFlat: 10,
 };
 
 export interface PriceBreakdown {
   base: number;
   designAdd: number;
   removalAdd: number;
-  total: number;
+  total: number; // starting-at minimum, not a guaranteed final price
   deposit: number;
 }
 
@@ -50,7 +48,7 @@ export function calculatePrice(selection: PricingSelection): PriceBreakdown {
   const removalAdd = PRICING_CONFIG.removalAdd[selection.removalType];
 
   const total = base + designAdd + removalAdd;
-  const deposit = Math.round(total * PRICING_CONFIG.depositPercent * 100) / 100;
+  const deposit = PRICING_CONFIG.depositFlat;
 
   return { base, designAdd, removalAdd, total, deposit };
 }
