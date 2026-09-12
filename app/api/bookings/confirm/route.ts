@@ -1,12 +1,16 @@
+// app/api/bookings/confirm/route.ts
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 
-function htmlResponse(message: string) {
+function htmlResponse(message: string, note?: string) {
   return new NextResponse(
     `<!DOCTYPE html>
     <html>
-      <body style="font-family: sans-serif; background:#0E1917; color:#F3EFE9; display:flex; align-items:center; justify-content:center; height:100vh; margin:0;">
-        <p style="font-size:1.2rem;">${message}</p>
+      <body style="font-family: sans-serif; background:#0E1917; color:#F3EFE9; display:flex; align-items:center; justify-content:center; height:100vh; margin:0; padding: 0 24px; text-align:center;">
+        <div>
+          <p style="font-size:1.2rem; margin:0 0 8px 0;">${message}</p>
+          ${note ? `<p style="font-size:0.9rem; color:#94A39C; margin:0;">${note}</p>` : ""}
+        </div>
       </body>
     </html>`,
     { headers: { "Content-Type": "text/html" } }
@@ -46,6 +50,7 @@ export async function GET(request: NextRequest) {
   }
 
   return htmlResponse(
-    `Confirmed! ${booking.client_name}'s appointment has been added to your calendar, and they'll get a calendar invite too.`
+    `Confirmed! ${booking.client_name}'s appointment has been added to your calendar, and they'll get a calendar invite too.`,
+    "Remind them to check their spam/junk folder if the calendar invite email doesn't show up in their main inbox."
   );
 }
