@@ -33,7 +33,7 @@ export default function RootLayout({
 }) {
   return (
     <html lang="en" className={instrumentSerif.variable}>
-      <body className="bg-ink text-cream font-body min-h-screen flex flex-col">
+      <body className="bg-ink text-cream font-body min-h-screen flex flex-col lowercase">
         <header className="border-b border-white/5">
           <nav className="max-w-4xl mx-auto flex items-center justify-between px-6 py-5">
             <Link href="/" className="font-display italic text-xl tracking-wide">
