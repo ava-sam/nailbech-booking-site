@@ -76,11 +76,10 @@ export async function GET() {
 
     return NextResponse.json({ slots: available });
   } catch (err) {
-    // TEMPORARY: surfaces the real error for debugging. Remove the
-    // `message`/`stack` fields once this is diagnosed — you don't want
-    // internal error details exposed on a public endpoint long-term.
-    const message = err instanceof Error ? err.message : String(err);
-    const stack = err instanceof Error ? err.stack : undefined;
-    return NextResponse.json({ error: message, stack }, { status: 500 });
+    console.error("available-slots error:", err);
+    return NextResponse.json(
+      { error: "Failed to load available slots." },
+      { status: 500 }
+    );
   }
 }
