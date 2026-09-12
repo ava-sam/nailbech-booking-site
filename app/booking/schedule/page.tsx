@@ -6,9 +6,24 @@ import { supabase } from "@/lib/supabase";
 import { calculatePrice, RemovalType, Length, DesignTier } from "@/lib/pricing";
 
 interface Slot {
-  id: string;
   date: string;
   time: string;
+}
+
+function formatSlotLabel(slot: Slot) {
+  const [year, month, day] = slot.date.split("-").map(Number);
+  const [hour, minute] = slot.time.split(":").map(Number);
+  const d = new Date(year, month - 1, day, hour, minute);
+  const dateLabel = d.toLocaleDateString("en-US", {
+    weekday: "short",
+    month: "short",
+    day: "numeric",
+  });
+  const timeLabel = d.toLocaleTimeString("en-US", {
+    hour: "numeric",
+    minute: "2-digit",
+  });
+  return `${dateLabel} · ${timeLabel}`;
 }
 
 function ScheduleForm() {
@@ -19,12 +34,13 @@ function ScheduleForm() {
   const price = calculatePrice({ removalType, length, designTier });
 
   const [slots, setSlots] = useState<Slot[]>([]);
-  const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
+  const [selectedSlot, setSelectedSlot] = useState<Slot | null>(null);
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
     async function loadSlots() {
@@ -35,6 +51,8 @@ function ScheduleForm() {
         setSlots(json.slots ?? []);
       } catch {
         setError("Couldn't load available times. Try refreshing.");
+      } finally {
+        setLoading(false);
       }
     }
     loadSlots();
@@ -57,7 +75,8 @@ function ScheduleForm() {
       design_tier: designTier,
       price: price.total,
       deposit_amount: price.deposit,
-      slot_id: selectedSlot,
+      appointment_date: selectedSlot.date,
+      appointment_time: selectedSlot.time,
     });
 
     if (insertError) {
@@ -90,27 +109,33 @@ function ScheduleForm() {
         Total ${price.total.toFixed(2)} · Deposit ${price.deposit.toFixed(2)}
       </p>
 
-      {slots.length === 0 && !error && (
+      {loading && <p className="text-sage mb-8">Loading available times…</p>}
+
+      {!loading && slots.length === 0 && !error && (
         <p className="text-sage mb-8">
-          No open slots right now — check back soon.
+          No open times right now — check back soon.
         </p>
       )}
 
-      <div className="grid grid-cols-2 gap-3 mb-8">
-        {slots.map((slot) => (
-          <button
-            key={slot.id}
-            type="button"
-            onClick={() => setSelectedSlot(slot.id)}
-            className={`rounded-lg px-4 py-3 text-sm border transition-colors ${
-              selectedSlot === slot.id
-                ? "bg-lotus text-ink border-lotus"
-                : "bg-surface text-cream border-white/10 hover:border-jade"
-            }`}
-          >
-            {slot.date} · {slot.time}
-          </button>
-        ))}
+      <div className="grid grid-cols-2 gap-3 mb-8 max-h-96 overflow-y-auto">
+        {slots.map((slot) => {
+          const isSelected =
+            selectedSlot?.date === slot.date && selectedSlot?.time === slot.time;
+          return (
+            <button
+              key={`${slot.date}-${slot.time}`}
+              type="button"
+              onClick={() => setSelectedSlot(slot)}
+              className={`rounded-lg px-4 py-3 text-sm border transition-colors ${
+                isSelected
+                  ? "bg-lotus text-ink border-lotus"
+                  : "bg-surface text-cream border-white/10 hover:border-jade"
+              }`}
+            >
+              {formatSlotLabel(slot)}
+            </button>
+          );
+        })}
       </div>
 
       <form onSubmit={handleSubmit} className="space-y-4">

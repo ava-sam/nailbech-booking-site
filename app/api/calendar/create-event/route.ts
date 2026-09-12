@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getCalendarClient } from "@/lib/googleCalendar";
-
-const APPOINTMENT_DURATION_MINUTES = 180;
+import { addMinutesToWallClock, SALON_TZ } from "@/lib/timezone";
+import { APPOINTMENT_DURATION_MINUTES } from "@/lib/availability";
 
 export async function POST(request: NextRequest) {
   const body = await request.json();
@@ -26,7 +26,7 @@ export async function POST(request: NextRequest) {
 
   const { data: booking, error } = await supabaseAdmin
     .from("bookings")
-    .select("*, slots(date, time)")
+    .select("*")
     .eq("id", bookingId)
     .single();
 
@@ -38,9 +38,11 @@ export async function POST(request: NextRequest) {
     return NextResponse.json({ skipped: true, reason: "already synced" });
   }
 
-  const slot = booking.slots as { date: string; time: string };
-  const start = new Date(`${slot.date}T${slot.time}`);
-  const end = new Date(start.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000);
+  const { date: endDate, time: endTime } = addMinutesToWallClock(
+    booking.appointment_date,
+    booking.appointment_time,
+    APPOINTMENT_DURATION_MINUTES
+  );
 
   const calendar = getCalendarClient();
   const event = await calendar.events.insert({
@@ -53,8 +55,8 @@ export async function POST(request: NextRequest) {
         `Removal: ${booking.removal_type}\n` +
         `Phone: ${booking.client_phone}\n` +
         `Email: ${booking.client_email}`,
-      start: { dateTime: start.toISOString() },
-      end: { dateTime: end.toISOString() },
+      start: { dateTime: `${booking.appointment_date}T${booking.appointment_time}`, timeZone: SALON_TZ },
+      end: { dateTime: `${endDate}T${endTime}`, timeZone: SALON_TZ },
     },
   });
 

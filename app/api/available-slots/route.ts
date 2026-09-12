@@ -1,31 +1,34 @@
 import { NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getCalendarClient } from "@/lib/googleCalendar";
-
-// Adjust to match her real average appointment length.
-const APPOINTMENT_DURATION_MINUTES = 180;
+import { pacificToUtcDate } from "@/lib/timezone";
+import {
+  generateCandidateSlots,
+  APPOINTMENT_DURATION_MINUTES,
+} from "@/lib/availability";
 
 export async function GET() {
-  const { data: slots, error } = await supabaseAdmin
-    .from("slots")
-    .select("id, date, time")
-    .eq("is_available", true)
-    .order("date", { ascending: true })
-    .order("time", { ascending: true });
+  const now = new Date();
+  const candidates = generateCandidateSlots().filter(
+    (c) => pacificToUtcDate(c.date, c.time).getTime() > now.getTime()
+  );
 
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-  if (!slots || slots.length === 0) {
+  if (candidates.length === 0) {
     return NextResponse.json({ slots: [] });
   }
 
-  const startTimes = slots.map((s) => new Date(`${s.date}T${s.time}`));
-  const timeMin = new Date(Math.min(...startTimes.map((d) => d.getTime())));
-  const timeMax = new Date(
-    Math.max(...startTimes.map((d) => d.getTime())) + 60 * 60 * 1000
-  );
+  const ranges = candidates.map((c) => ({
+    start: pacificToUtcDate(c.date, c.time),
+    end: new Date(
+      pacificToUtcDate(c.date, c.time).getTime() +
+        APPOINTMENT_DURATION_MINUTES * 60 * 1000
+    ),
+  }));
 
+  const timeMin = new Date(Math.min(...ranges.map((r) => r.start.getTime())));
+  const timeMax = new Date(Math.max(...ranges.map((r) => r.end.getTime())));
+
+  // 1. Pull her real calendar busy times for the whole window.
   const calendar = getCalendarClient();
   const freebusy = await calendar.freebusy.query({
     requestBody: {
@@ -34,20 +37,40 @@ export async function GET() {
       items: [{ id: "primary" }],
     },
   });
-
   const busyRanges = freebusy.data.calendars?.primary?.busy ?? [];
 
-  const available = slots.filter((slot) => {
-    const start = new Date(`${slot.date}T${slot.time}`);
+  // 2. Pull existing bookings in that window too, so two clients can't
+  //    both grab the same slot before her calendar event is created
+  //    (that only happens once she confirms the deposit).
+  const { data: existingBookings, error } = await supabaseAdmin
+    .from("bookings")
+    .select("appointment_date, appointment_time")
+    .gte("appointment_date", timeMin.toISOString().slice(0, 10))
+    .lte("appointment_date", timeMax.toISOString().slice(0, 10));
+
+  if (error) {
+    return NextResponse.json({ error: error.message }, { status: 500 });
+  }
+
+  const bookedRanges = (existingBookings ?? []).map((b) => {
+    const start = pacificToUtcDate(b.appointment_date, b.appointment_time);
     const end = new Date(
       start.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000
     );
+    return { start, end };
+  });
 
-    return !busyRanges.some((busy) => {
-      const busyStart = new Date(busy.start!);
-      const busyEnd = new Date(busy.end!);
-      return start < busyEnd && end > busyStart; // ranges overlap
-    });
+  const allBusy = [
+    ...busyRanges.map((b) => ({
+      start: new Date(b.start!),
+      end: new Date(b.end!),
+    })),
+    ...bookedRanges,
+  ];
+
+  const available = candidates.filter((candidate, i) => {
+    const { start, end } = ranges[i];
+    return !allBusy.some((busy) => start < busy.end && end > busy.start);
   });
 
   return NextResponse.json({ slots: available });
