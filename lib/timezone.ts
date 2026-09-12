@@ -1,6 +1,12 @@
 // UCSD is in San Diego — Pacific time. Change this if that's ever wrong.
 export const SALON_TZ = "America/Los_Angeles";
- 
+
+// Returns today's date as "YYYY-MM-DD" in Pacific time, regardless of what
+// timezone the server itself is running in (Vercel functions run in UTC).
+export function pacificTodayDateString(): string {
+  return new Date().toLocaleDateString("en-CA", { timeZone: SALON_TZ });
+}
+
 // Converts a slot's local wall-clock date/time (e.g. "2026-09-15", "10:30:00")
 // into the actual UTC Date it represents, correctly accounting for PST/PDT.
 // Needed anywhere we compare against Google's freebusy data, which is
@@ -9,12 +15,12 @@ export function pacificToUtcDate(dateStr: string, timeStr: string): Date {
   const [year, month, day] = dateStr.split("-").map(Number);
   const [hour, minute, second] = timeStr.split(":").map(Number);
   const naiveUtc = new Date(Date.UTC(year, month - 1, day, hour, minute, second ?? 0));
- 
+
   // Find the real UTC offset for this specific date (handles DST correctly).
   const tzString = naiveUtc.toLocaleString("en-US", { timeZone: SALON_TZ });
   const tzDate = new Date(tzString);
   const offsetMs = naiveUtc.getTime() - tzDate.getTime();
- 
+
   return new Date(naiveUtc.getTime() + offsetMs);
 }
 
@@ -31,7 +37,7 @@ export function addMinutesToWallClock(
   const [hh, mm, ss] = timeStr.split(":").map(Number);
   const neutral = new Date(Date.UTC(y, m - 1, d, hh, mm, ss ?? 0));
   neutral.setUTCMinutes(neutral.getUTCMinutes() + minutesToAdd);
- 
+
   const pad = (n: number) => String(n).padStart(2, "0");
   return {
     date: `${neutral.getUTCFullYear()}-${pad(neutral.getUTCMonth() + 1)}-${pad(
@@ -42,4 +48,3 @@ export function addMinutesToWallClock(
     )}`,
   };
 }
- 

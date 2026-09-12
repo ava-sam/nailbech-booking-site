@@ -1,16 +1,23 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { getCalendarClient } from "@/lib/googleCalendar";
-import { pacificToUtcDate } from "@/lib/timezone";
+import { pacificToUtcDate, pacificTodayDateString } from "@/lib/timezone";
 import {
-  generateCandidateSlots,
+  generateCandidateSlotsForMonth,
   APPOINTMENT_DURATION_MINUTES,
 } from "@/lib/availability";
 
-export async function GET() {
+export async function GET(request: NextRequest) {
   try {
+    const { searchParams } = new URL(request.url);
+    const todayStr = pacificTodayDateString();
+    const [todayYear, todayMonth] = todayStr.split("-").map(Number);
+
+    const year = Number(searchParams.get("year")) || todayYear;
+    const month = Number(searchParams.get("month")) || todayMonth; // 1-indexed
+
     const now = new Date();
-    const candidates = generateCandidateSlots().filter(
+    const candidates = generateCandidateSlotsForMonth(year, month, todayStr).filter(
       (c) => pacificToUtcDate(c.date, c.time).getTime() > now.getTime()
     );
 
@@ -29,7 +36,6 @@ export async function GET() {
     const timeMin = new Date(Math.min(...ranges.map((r) => r.start.getTime())));
     const timeMax = new Date(Math.max(...ranges.map((r) => r.end.getTime())));
 
-    // 1. Pull her real calendar busy times for the whole window.
     const calendar = getCalendarClient();
     const freebusy = await calendar.freebusy.query({
       requestBody: {
@@ -40,9 +46,6 @@ export async function GET() {
     });
     const busyRanges = freebusy.data.calendars?.primary?.busy ?? [];
 
-    // 2. Pull existing bookings in that window too, so two clients can't
-    //    both grab the same slot before her calendar event is created
-    //    (that only happens once she confirms the deposit).
     const { data: existingBookings, error } = await supabaseAdmin
       .from("bookings")
       .select("appointment_date, appointment_time")

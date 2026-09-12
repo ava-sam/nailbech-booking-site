@@ -14,18 +14,15 @@ export default function ContactPage() {
             received.
           </p>
           <div className="space-y-2 text-cream text-sm">
-            {/* Replace with her real info */}
-            <p>Zelle: [her phone number or email]</p>
-            <p>Apple Cash: [her phone number]</p>
+            <p>Zelle / Apple Cash (preferred): [9168045608]</p>
           </div>
         </div>
 
         <div className="bg-surface rounded-xl p-6">
           <h2 className="text-cream font-medium mb-3">Reach out directly</h2>
           <div className="space-y-2 text-cream text-sm">
-            {/* Replace with her real info */}
-            <p>Phone: [her number]</p>
-            <p>Email: [her email]</p>
+            <p>Phone: [9168045608]</p>
+            <p>Email: [nailbech@gmail.com]</p>
           </div>
         </div>
 
@@ -33,7 +30,7 @@ export default function ContactPage() {
           <h2 className="text-cream font-medium mb-3">Follow along</h2>
           <div className="flex gap-4 text-sm">
             <a
-              href="https://instagram.com/yourhandle"
+              href="https://instagram.com/nailbech"
               target="_blank"
               rel="noopener noreferrer"
               className="text-jade hover:text-lotus transition-colors"
@@ -41,7 +38,7 @@ export default function ContactPage() {
               Instagram
             </a>
             <a
-              href="https://tiktok.com/@yourhandle"
+              href="https://tiktok.com/@nailbech"
               target="_blank"
               rel="noopener noreferrer"
               className="text-jade hover:text-lotus transition-colors"
