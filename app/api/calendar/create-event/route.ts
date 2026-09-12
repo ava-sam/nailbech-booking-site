@@ -49,7 +49,7 @@ export async function POST(request: NextRequest) {
     calendarId: "primary",
     sendUpdates: "all", // actually sends the invite email to the client
     requestBody: {
-      summary: `Gel-X — ${booking.client_name}`,
+      summary: `${booking.client_name} -- Gel-X`,
       description:
         `Length: ${booking.length}\n` +
         `Design: ${booking.design_tier}\n` +
