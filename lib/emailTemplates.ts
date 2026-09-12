@@ -76,7 +76,7 @@ export function buildBookingNotificationEmail(
                   <p style="margin:0 0 4px 0; font-family: Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8FAFA3;">
                     New Booking
                   </p>
-                  <h1 style="margin:0 0 24px 0; font-family: Georgia, 'Times New Roman', serif; font-size: 26px; color: #F3EFE9; font-weight: 500;">
+                  <h1 style="margin:0 0 24px 0; font-family: Helvetica, Arial, sans-serif; font-size: 26px; color: #F3EFE9; font-weight: bold;">
                     ${booking.clientName}
                   </h1>
 

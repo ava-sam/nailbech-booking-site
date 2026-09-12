@@ -3,7 +3,7 @@ import { CONTACT_INFO } from "@/lib/contactInfo";
 export default function ContactPage() {
   return (
     <section className="max-w-xl mx-auto px-6 py-16">
-      <h1 className="font-display italic text-3xl text-cream mb-8">
+      <h1 className="font-heading font-bold text-3xl text-cream mb-8">
         Contact & Deposit
       </h1>
 

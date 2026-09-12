@@ -39,7 +39,7 @@ export default function GalleryPage() {
 
   return (
     <section className="max-w-4xl mx-auto px-6 py-16">
-      <h1 className="font-display italic text-3xl text-cream mb-8">Gallery</h1>
+      <h1 className="font-heading font-bold text-3xl text-cream mb-8">Gallery</h1>
 
       {error && <p className="text-sage">{error}</p>}
 
