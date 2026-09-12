@@ -39,7 +39,7 @@ export default function RootLayout({
             <Link href="/" className="font-display italic text-xl tracking-wide">
               nailbech
             </Link>
-            <div className="flex gap-6 text-sm font-heading">
+            <div className="flex gap-6 text-sm font-heading font-bold">
               {NAV_LINKS.map((link) => (
                 <Link
                   key={link.href}
