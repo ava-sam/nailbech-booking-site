@@ -37,7 +37,7 @@ export default function BookingPage() {
 
   return (
     <section className="max-w-xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl text-cream mb-8">Build your set</h1>
+      <h1 className="font-display italic text-3xl text-cream mb-8">Build your set</h1>
 
       <div className="space-y-6">
         <div>

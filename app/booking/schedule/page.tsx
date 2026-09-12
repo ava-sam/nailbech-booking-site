@@ -180,7 +180,7 @@ function ScheduleForm() {
           </svg>
         </div>
 
-        <h1 className="font-display text-3xl text-cream mb-2">
+        <h1 className="font-display italic text-3xl text-cream mb-2">
           You&apos;re booked!
         </h1>
         <p className="text-sage text-sm mb-8">
@@ -254,7 +254,7 @@ function ScheduleForm() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl text-cream mb-2">Pick a date</h1>
+      <h1 className="font-display italic text-3xl text-cream mb-2">Pick a date</h1>
       <p className="text-sage text-sm mb-8">
         Starting at ${price.total.toFixed(2)}+ · Deposit ${price.deposit.toFixed(2)}
       </p>

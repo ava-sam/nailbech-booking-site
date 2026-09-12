@@ -4,7 +4,7 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <section className="max-w-2xl mx-auto px-6 py-20 text-center">
-      <h1 className="font-display text-4xl md:text-5xl text-cream leading-tight">
+      <h1 className="font-display italic text-4xl md:text-5xl text-cream leading-tight">
         Gel-X, done right on campus.
       </h1>
 

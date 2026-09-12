@@ -8,8 +8,9 @@
   --color-cream: #f3efe9;
   --color-sage: #94a39c;
 
-  --font-display: var(--font-fraunces), serif;
-  --font-body: var(--font-work-sans), sans-serif;
+  --font-display: var(--font-instrument-serif), serif;
+  --font-heading: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  --font-body: "Open Sauce Sans", sans-serif;
 }
 
 body {
