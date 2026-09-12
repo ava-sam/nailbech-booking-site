@@ -31,10 +31,9 @@ const LABEL_MAP: Record<string, string> = {
   short: "Short",
   medium: "Medium",
   long: "Long",
-  xl: "Extra Long",
-  simple: "Simple",
-  standard: "Standard",
-  intricate: "Intricate",
+  simple: "Tier 1",
+  standard: "Tier 2",
+  intricate: "Tier 3",
   none: "No removal needed",
   own: "Removal — her previous set",
   foreign: "Removal — another salon's work",
@@ -87,7 +86,7 @@ export function buildBookingNotificationEmail(
                     ${detailRow("Length", LABEL_MAP[booking.length] ?? booking.length)}
                     ${detailRow("Design", LABEL_MAP[booking.designTier] ?? booking.designTier)}
                     ${detailRow("Removal", LABEL_MAP[booking.removalType] ?? booking.removalType)}
-                    ${detailRow("Total", `$${booking.price.toFixed(2)}`)}
+                    ${detailRow("Starting at", `$${booking.price.toFixed(2)}+`)}
                     ${detailRow("Deposit due", `$${booking.depositAmount.toFixed(2)}`)}
                     ${detailRow("Phone", booking.clientPhone)}
                     ${detailRow("Email", booking.clientEmail)}
