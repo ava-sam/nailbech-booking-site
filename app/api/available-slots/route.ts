@@ -8,70 +8,79 @@ import {
 } from "@/lib/availability";
 
 export async function GET() {
-  const now = new Date();
-  const candidates = generateCandidateSlots().filter(
-    (c) => pacificToUtcDate(c.date, c.time).getTime() > now.getTime()
-  );
-
-  if (candidates.length === 0) {
-    return NextResponse.json({ slots: [] });
-  }
-
-  const ranges = candidates.map((c) => ({
-    start: pacificToUtcDate(c.date, c.time),
-    end: new Date(
-      pacificToUtcDate(c.date, c.time).getTime() +
-        APPOINTMENT_DURATION_MINUTES * 60 * 1000
-    ),
-  }));
-
-  const timeMin = new Date(Math.min(...ranges.map((r) => r.start.getTime())));
-  const timeMax = new Date(Math.max(...ranges.map((r) => r.end.getTime())));
-
-  // 1. Pull her real calendar busy times for the whole window.
-  const calendar = getCalendarClient();
-  const freebusy = await calendar.freebusy.query({
-    requestBody: {
-      timeMin: timeMin.toISOString(),
-      timeMax: timeMax.toISOString(),
-      items: [{ id: "primary" }],
-    },
-  });
-  const busyRanges = freebusy.data.calendars?.primary?.busy ?? [];
-
-  // 2. Pull existing bookings in that window too, so two clients can't
-  //    both grab the same slot before her calendar event is created
-  //    (that only happens once she confirms the deposit).
-  const { data: existingBookings, error } = await supabaseAdmin
-    .from("bookings")
-    .select("appointment_date, appointment_time")
-    .gte("appointment_date", timeMin.toISOString().slice(0, 10))
-    .lte("appointment_date", timeMax.toISOString().slice(0, 10));
-
-  if (error) {
-    return NextResponse.json({ error: error.message }, { status: 500 });
-  }
-
-  const bookedRanges = (existingBookings ?? []).map((b) => {
-    const start = pacificToUtcDate(b.appointment_date, b.appointment_time);
-    const end = new Date(
-      start.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000
+  try {
+    const now = new Date();
+    const candidates = generateCandidateSlots().filter(
+      (c) => pacificToUtcDate(c.date, c.time).getTime() > now.getTime()
     );
-    return { start, end };
-  });
 
-  const allBusy = [
-    ...busyRanges.map((b) => ({
-      start: new Date(b.start!),
-      end: new Date(b.end!),
-    })),
-    ...bookedRanges,
-  ];
+    if (candidates.length === 0) {
+      return NextResponse.json({ slots: [] });
+    }
 
-  const available = candidates.filter((candidate, i) => {
-    const { start, end } = ranges[i];
-    return !allBusy.some((busy) => start < busy.end && end > busy.start);
-  });
+    const ranges = candidates.map((c) => ({
+      start: pacificToUtcDate(c.date, c.time),
+      end: new Date(
+        pacificToUtcDate(c.date, c.time).getTime() +
+          APPOINTMENT_DURATION_MINUTES * 60 * 1000
+      ),
+    }));
 
-  return NextResponse.json({ slots: available });
+    const timeMin = new Date(Math.min(...ranges.map((r) => r.start.getTime())));
+    const timeMax = new Date(Math.max(...ranges.map((r) => r.end.getTime())));
+
+    // 1. Pull her real calendar busy times for the whole window.
+    const calendar = getCalendarClient();
+    const freebusy = await calendar.freebusy.query({
+      requestBody: {
+        timeMin: timeMin.toISOString(),
+        timeMax: timeMax.toISOString(),
+        items: [{ id: "primary" }],
+      },
+    });
+    const busyRanges = freebusy.data.calendars?.primary?.busy ?? [];
+
+    // 2. Pull existing bookings in that window too, so two clients can't
+    //    both grab the same slot before her calendar event is created
+    //    (that only happens once she confirms the deposit).
+    const { data: existingBookings, error } = await supabaseAdmin
+      .from("bookings")
+      .select("appointment_date, appointment_time")
+      .gte("appointment_date", timeMin.toISOString().slice(0, 10))
+      .lte("appointment_date", timeMax.toISOString().slice(0, 10));
+
+    if (error) {
+      return NextResponse.json({ error: error.message }, { status: 500 });
+    }
+
+    const bookedRanges = (existingBookings ?? []).map((b) => {
+      const start = pacificToUtcDate(b.appointment_date, b.appointment_time);
+      const end = new Date(
+        start.getTime() + APPOINTMENT_DURATION_MINUTES * 60 * 1000
+      );
+      return { start, end };
+    });
+
+    const allBusy = [
+      ...busyRanges.map((b) => ({
+        start: new Date(b.start!),
+        end: new Date(b.end!),
+      })),
+      ...bookedRanges,
+    ];
+
+    const available = candidates.filter((candidate, i) => {
+      const { start, end } = ranges[i];
+      return !allBusy.some((busy) => start < busy.end && end > busy.start);
+    });
+
+    return NextResponse.json({ slots: available });
+  } catch (err) {
+    // TEMPORARY: surfaces the real error for debugging. Remove the
+    // `message`/`stack` fields once this is diagnosed — you don't want
+    // internal error details exposed on a public endpoint long-term.
+    const message = err instanceof Error ? err.message : String(err);
+    const stack = err instanceof Error ? err.stack : undefined;
+    return NextResponse.json({ error: message, stack }, { status: 500 });
+  }
 }
