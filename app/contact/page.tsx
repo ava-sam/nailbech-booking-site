@@ -1,3 +1,5 @@
+import { CONTACT_INFO } from "@/lib/contactInfo";
+
 export default function ContactPage() {
   return (
     <section className="max-w-xl mx-auto px-6 py-16">
@@ -14,15 +16,16 @@ export default function ContactPage() {
             received.
           </p>
           <div className="space-y-2 text-cream text-sm">
-            <p>Zelle / Apple Cash (preferred): [9168045608]</p>
+            <p>Zelle: {CONTACT_INFO.zelle}</p>
+            <p>Apple Cash: {CONTACT_INFO.appleCash}</p>
           </div>
         </div>
 
         <div className="bg-surface rounded-xl p-6">
           <h2 className="text-cream font-medium mb-3">Reach out directly</h2>
           <div className="space-y-2 text-cream text-sm">
-            <p>Phone: [9168045608]</p>
-            <p>Email: [nailbech@gmail.com]</p>
+            <p>Phone: {CONTACT_INFO.phone}</p>
+            <p>Email: {CONTACT_INFO.email}</p>
           </div>
         </div>
 
@@ -30,7 +33,7 @@ export default function ContactPage() {
           <h2 className="text-cream font-medium mb-3">Follow along</h2>
           <div className="flex gap-4 text-sm">
             <a
-              href="https://instagram.com/nailbech"
+              href={CONTACT_INFO.instagramUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-jade hover:text-lotus transition-colors"
@@ -38,7 +41,7 @@ export default function ContactPage() {
               Instagram
             </a>
             <a
-              href="https://tiktok.com/@nailbech"
+              href={CONTACT_INFO.tiktokUrl}
               target="_blank"
               rel="noopener noreferrer"
               className="text-jade hover:text-lotus transition-colors"

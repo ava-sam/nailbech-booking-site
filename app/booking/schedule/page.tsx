@@ -2,7 +2,9 @@
 
 import { useEffect, useState, useMemo, Suspense, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
+import Link from "next/link";
 import { supabase } from "@/lib/supabase";
+import { CONTACT_INFO } from "@/lib/contactInfo";
 import { calculatePrice, RemovalType, Length, DesignTier } from "@/lib/pricing";
 
 interface Slot {
@@ -162,16 +164,90 @@ function ScheduleForm() {
 
   if (submitted) {
     return (
-      <section className="max-w-xl mx-auto px-6 py-20 text-center">
-        <h1 className="font-display text-3xl text-cream mb-4">
+      <section className="max-w-md mx-auto px-6 py-20 text-center">
+        <div className="w-14 h-14 rounded-full bg-lotus/15 border border-lotus/30 flex items-center justify-center mx-auto mb-6">
+          <svg
+            width="24"
+            height="24"
+            viewBox="0 0 24 24"
+            fill="none"
+            stroke="#E3B8BE"
+            strokeWidth="2.5"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+          >
+            <path d="M20 6 9 17l-5-5" />
+          </svg>
+        </div>
+
+        <h1 className="font-display text-3xl text-cream mb-2">
           You&apos;re booked!
         </h1>
-        <p className="text-sage leading-relaxed">
-          Your appointment is pending until your deposit is confirmed. Send $
-          {price.deposit.toFixed(2)} via Zelle or Apple Cash using the info on
-          the contact page — you&apos;ll get a confirmation once it&apos;s
-          received.
+        <p className="text-sage text-sm mb-8">
+          Your appointment is pending until your deposit is confirmed.
         </p>
+
+        {selectedDate && selectedTime && (
+          <div className="bg-surface rounded-xl p-6 mb-8 text-left">
+            <div className="flex justify-between text-sm mb-3">
+              <span className="text-sage">Date</span>
+              <span className="text-cream">{formatDateLabel(selectedDate)}</span>
+            </div>
+            <div className="flex justify-between text-sm mb-3">
+              <span className="text-sage">Time</span>
+              <span className="text-cream">{formatTimeLabel(selectedTime)}</span>
+            </div>
+            <div className="border-t border-white/10 my-3" />
+            <div className="flex justify-between text-sm">
+              <span className="text-sage">Deposit due</span>
+              <span className="text-lotus font-medium">
+                ${price.deposit.toFixed(2)}
+              </span>
+            </div>
+          </div>
+        )}
+
+        <p className="text-sage text-sm leading-relaxed mb-6">
+          Send your deposit to confirm — you&apos;ll get a calendar invite
+          once it&apos;s received.
+        </p>
+
+        <div className="bg-surface rounded-xl p-6 mb-8 text-left space-y-4">
+          <div>
+            <p className="text-sage text-xs uppercase tracking-wide mb-1">
+              Zelle
+            </p>
+            <p className="text-cream text-sm">{CONTACT_INFO.zelle}</p>
+          </div>
+          <div>
+            <p className="text-sage text-xs uppercase tracking-wide mb-1">
+              Apple Cash
+            </p>
+            <p className="text-cream text-sm">{CONTACT_INFO.appleCash}</p>
+          </div>
+          <div className="border-t border-white/10 pt-4">
+            <p className="text-sage text-xs uppercase tracking-wide mb-1">
+              Questions? Reach out directly
+            </p>
+            <p className="text-cream text-sm">{CONTACT_INFO.phone}</p>
+            <p className="text-cream text-sm">{CONTACT_INFO.email}</p>
+          </div>
+        </div>
+
+        <div className="flex justify-center gap-6 text-sm">
+          <Link
+            href="/"
+            className="text-sage hover:text-cream transition-colors"
+          >
+            Back to home
+          </Link>
+          <Link
+            href="/gallery"
+            className="text-sage hover:text-cream transition-colors"
+          >
+            View gallery
+          </Link>
+        </div>
       </section>
     );
   }

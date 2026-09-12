@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Fraunces, Work_Sans } from "next/font/google";
 import Link from "next/link";
+import { CONTACT_INFO } from "@/lib/contactInfo";
 import "./globals.css";
 
 const fraunces = Fraunces({
@@ -25,11 +26,6 @@ const NAV_LINKS = [
   { href: "/booking", label: "Book" },
   { href: "/gallery", label: "Gallery" },
   { href: "/contact", label: "Contact" },
-];
-
-const SOCIAL_LINKS = [
-  { href: "https://instagram.com/yourhandle", label: "Instagram" },
-  { href: "https://tiktok.com/@yourhandle", label: "TikTok" },
 ];
 
 export default function RootLayout({
@@ -65,17 +61,22 @@ export default function RootLayout({
           <div className="max-w-4xl mx-auto px-6 py-8 flex items-center justify-between text-sm text-sage">
             <span>&copy; {new Date().getFullYear()} Nailbech</span>
             <div className="flex gap-5">
-              {SOCIAL_LINKS.map((link) => (
-                <a
-                  key={link.href}
-                  href={link.href}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="hover:text-lotus transition-colors"
-                >
-                  {link.label}
-                </a>
-              ))}
+              <a
+                href={CONTACT_INFO.instagramUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-lotus transition-colors"
+              >
+                Instagram
+              </a>
+              <a
+                href={CONTACT_INFO.tiktokUrl}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-lotus transition-colors"
+              >
+                TikTok
+              </a>
             </div>
           </div>
         </footer>
