@@ -3,9 +3,18 @@
 import { useEffect, useState, useMemo, Suspense, FormEvent } from "react";
 import { useSearchParams } from "next/navigation";
 import Link from "next/link";
+import Image from "next/image";
 import { supabase } from "@/lib/supabase";
 import { CONTACT_INFO } from "@/lib/contactInfo";
-import { calculatePrice, RemovalType, Length, DesignTier } from "@/lib/pricing";
+import {
+  calculatePrice,
+  REMOVAL_INFO,
+  LENGTH_INFO,
+  DESIGN_INFO,
+  RemovalType,
+  Length,
+  DesignTier,
+} from "@/lib/pricing";
 
 interface Slot {
   date: string;
@@ -58,6 +67,7 @@ function ScheduleForm() {
   const [name, setName] = useState("");
   const [phone, setPhone] = useState("");
   const [email, setEmail] = useState("");
+  const [instagram, setInstagram] = useState("");
   const [submitted, setSubmitted] = useState(false);
   const [submitError, setSubmitError] = useState<string | null>(null);
 
@@ -137,6 +147,7 @@ function ScheduleForm() {
       client_name: name,
       client_phone: phone,
       client_email: email,
+      client_instagram: instagram || null,
       removal_type: removalType,
       length,
       design_tier: designTier,
@@ -180,29 +191,88 @@ function ScheduleForm() {
           </svg>
         </div>
 
-        <h1 className="font-display text-3xl text-cream mb-2">
+        <h1 className="font-display italic text-3xl text-cream mb-2">
           You&apos;re booked!
         </h1>
-        <p className="text-sage text-sm mb-8">
+        <p className="text-sage text-sm mb-6">
           Your appointment is pending until your deposit is confirmed.
+        </p>
+        <p className="text-sage text-xs mb-8">
+          Once confirmed, check your spam/junk folder if you don&apos;t see
+          the calendar invite email in your main inbox.
         </p>
 
         {selectedDate && selectedTime && (
-          <div className="bg-surface rounded-xl p-6 mb-8 text-left">
-            <div className="flex justify-between text-sm mb-3">
-              <span className="text-sage">Date</span>
-              <span className="text-cream">{formatDateLabel(selectedDate)}</span>
+          <div className="bg-surface rounded-xl p-6 mb-8 text-left space-y-3">
+            <div className="flex items-center gap-2.5 mb-1">
+              <Image src="/logo.png" alt="" width={28} height={28} className="flex-shrink-0" />
+              <span className="font-display italic text-lg text-cream">nailbech</span>
             </div>
-            <div className="flex justify-between text-sm mb-3">
-              <span className="text-sage">Time</span>
-              <span className="text-cream">{formatTimeLabel(selectedTime)}</span>
+
+            <div className="border-t border-white/10 pt-3">
+              <div className="flex justify-between text-sm mb-2">
+                <span className="text-sage">Date</span>
+                <span className="font-body font-semibold text-cream">{formatDateLabel(selectedDate)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Time</span>
+                <span className="font-body font-semibold text-cream">{formatTimeLabel(selectedTime)}</span>
+              </div>
             </div>
-            <div className="border-t border-white/10 my-3" />
-            <div className="flex justify-between text-sm">
-              <span className="text-sage">Deposit due</span>
-              <span className="text-lotus font-medium">
-                ${price.deposit.toFixed(2)}
-              </span>
+
+            <div className="border-t border-white/10 pt-3 space-y-1.5">
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Length</span>
+                <span className="text-cream">{LENGTH_INFO[length].title}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Design</span>
+                <span className="text-cream">{DESIGN_INFO[designTier].title}</span>
+              </div>
+              {removalType !== "none" && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-sage">Removal</span>
+                  <span className="text-cream">{REMOVAL_INFO[removalType].title}</span>
+                </div>
+              )}
+            </div>
+
+            <div className="border-t border-white/10 pt-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Total</span>
+                <span className="font-semibold text-cream">${price.total.toFixed(2)}</span>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-3">
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Deposit due</span>
+                <span className="text-lotus font-medium">
+                  ${price.deposit.toFixed(2)}
+                </span>
+              </div>
+            </div>
+
+            <div className="border-t border-white/10 pt-3 space-y-1.5">
+              <p className="text-sage text-[11px] uppercase tracking-wide">Booked as</p>
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Name</span>
+                <span className="text-cream">{name}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Phone</span>
+                <span className="text-cream">{phone}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-sage">Email</span>
+                <span className="text-cream">{email}</span>
+              </div>
+              {instagram && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-sage">Instagram</span>
+                  <span className="text-cream">{instagram}</span>
+                </div>
+              )}
             </div>
           </div>
         )}
@@ -212,18 +282,24 @@ function ScheduleForm() {
           once it&apos;s received. Check your spam inbox!
         </p>
 
+        <p className="text-sage text-sm font-semibold uppercase tracking-wide mb-3 text-left">
+          Contact &amp; payment
+        </p>
         <div className="bg-surface rounded-xl p-6 mb-8 text-left space-y-4">
+          <div>
+            <p className="text-sage text-xs uppercase tracking-wide mb-1">
+              Apple Cash (preferred)
+            </p>
+            <p className="text-cream text-sm font-semibold">{CONTACT_INFO.appleCash}</p>
+          </div>
           <div>
             <p className="text-sage text-xs uppercase tracking-wide mb-1">
               Zelle
             </p>
-            <p className="text-cream text-sm">{CONTACT_INFO.zelle}</p>
-          </div>
-          <div>
-            <p className="text-sage text-xs uppercase tracking-wide mb-1">
-              Apple Cash
+            <p className="text-cream text-sm font-semibold">{CONTACT_INFO.zelle}</p>
+            <p className="text-sage text-xs mt-1">
+              Put ONLY a random emoji in the memo/note
             </p>
-            <p className="text-cream text-sm">{CONTACT_INFO.appleCash}</p>
           </div>
           <div className="border-t border-white/10 pt-4">
             <p className="text-sage text-xs uppercase tracking-wide mb-1">
@@ -254,9 +330,12 @@ function ScheduleForm() {
 
   return (
     <section className="max-w-2xl mx-auto px-6 py-16">
-      <h1 className="font-display text-3xl text-cream mb-2">Pick a date</h1>
+      <p className="text-sage text-xs font-semibold tracking-wide mb-1.5">
+        booking · step 2 of 2
+      </p>
+      <h1 className="font-display italic text-3xl text-cream mb-2">Pick a date</h1>
       <p className="text-sage text-sm mb-8">
-        Starting at ${price.total.toFixed(2)}+ · Deposit ${price.deposit.toFixed(2)}
+        Total ${price.total.toFixed(2)} · ${price.deposit.toFixed(2)} deposit due
       </p>
 
       <div className="bg-surface rounded-xl p-6 mb-8">
@@ -337,7 +416,7 @@ function ScheduleForm() {
 
       {selectedDate && timesForSelectedDate.length > 0 && (
         <div className="mb-8">
-          <h2 className="text-cream font-medium mb-3">
+          <h2 className="font-display italic text-cream text-xl mb-3">
             {formatDateLabel(selectedDate)}
           </h2>
           <div className="grid grid-cols-3 gap-3">
@@ -385,6 +464,20 @@ function ScheduleForm() {
             required
             className="w-full bg-surface text-cream border border-white/10 rounded-lg px-4 py-3 placeholder:text-sage"
           />
+          <input
+            type="text"
+            placeholder="Instagram handle (optional)"
+            value={instagram}
+            onChange={(e) => setInstagram(e.target.value)}
+            className="w-full bg-surface text-cream border border-white/10 rounded-lg px-4 py-3 placeholder:text-sage"
+          />
+
+          <div className="rounded-xl bg-lotus/[0.08] shadow-[inset_0_0_0_1px_rgba(227,184,190,0.25)] px-4 py-3.5">
+            <p className="text-lotus text-xs leading-relaxed">
+              $10 deposit is required. I will manually approve your appointment
+              once deposit is received. Deposit info is available on next page.
+            </p>
+          </div>
 
           {submitError && <p className="text-lotus text-sm">{submitError}</p>}
 

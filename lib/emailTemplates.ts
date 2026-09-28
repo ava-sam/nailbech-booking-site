@@ -2,6 +2,7 @@ interface BookingEmailData {
   clientName: string;
   clientPhone: string;
   clientEmail: string;
+  clientInstagram?: string | null;
   appointmentDate: string; // "YYYY-MM-DD"
   appointmentTime: string; // "HH:MM:SS"
   length: string;
@@ -31,12 +32,15 @@ const LABEL_MAP: Record<string, string> = {
   short: "Short",
   medium: "Medium",
   long: "Long",
-  simple: "Tier 1",
-  standard: "Tier 2",
-  intricate: "Tier 3",
+  xlong: "Xlong",
+  simple: "Tier 1 — simple",
+  standard: "Tier 2 — moderate",
+  detailed: "Tier 3 — detailed",
+  intricate: "Tier 4 — intricate",
   none: "No removal needed",
-  own: "Removal — her previous set",
-  foreign: "Removal — another salon's work",
+  own_with_set: "Removal — her work, with a new set",
+  own_no_set: "Removal — her work, no new set",
+  foreign: "Removal — other's work (no acrylic/hardgel)",
 };
 
 function detailRow(label: string, value: string): string {
@@ -76,7 +80,7 @@ export function buildBookingNotificationEmail(
                   <p style="margin:0 0 4px 0; font-family: Helvetica, Arial, sans-serif; font-size: 11px; letter-spacing: 1.5px; text-transform: uppercase; color: #8FAFA3;">
                     New Booking
                   </p>
-                  <h1 style="margin:0 0 24px 0; font-family: Helvetica, Arial, sans-serif; font-size: 26px; color: #F3EFE9; font-weight: bold;">
+                  <h1 style="margin:0 0 24px 0; font-family: Georgia, 'Times New Roman', serif; font-style: italic; font-size: 26px; color: #F3EFE9; font-weight: 500;">
                     ${booking.clientName}
                   </h1>
 
@@ -90,6 +94,7 @@ export function buildBookingNotificationEmail(
                     ${detailRow("Deposit due", `$${booking.depositAmount.toFixed(2)}`)}
                     ${detailRow("Phone", booking.clientPhone)}
                     ${detailRow("Email", booking.clientEmail)}
+                    ${booking.clientInstagram ? detailRow("Instagram", booking.clientInstagram) : ""}
                   </table>
 
                   <p style="margin: 0 0 20px 0; font-family: Helvetica, Arial, sans-serif; font-size: 14px; line-height: 1.6; color: #94A39C;">

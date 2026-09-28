@@ -2,31 +2,49 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { calculatePrice, RemovalType, Length, DesignTier } from "@/lib/pricing";
+import {
+  calculatePrice,
+  REMOVAL_INFO,
+  LENGTH_INFO,
+  DESIGN_INFO,
+  RemovalType,
+  Length,
+  DesignTier,
+} from "@/lib/pricing";
 
-const REMOVAL_OPTIONS: { value: RemovalType; label: string }[] = [
-  { value: "none", label: "no removal needed" },
-  { value: "own", label: "removal — my previous set" },
-  { value: "foreign", label: "removal — another salon's work" },
-];
+type SectionKey = "removal" | "length" | "tier";
 
-const LENGTH_OPTIONS: { value: Length; label: string }[] = [
-  { value: "short", label: "short" },
-  { value: "medium", label: "medium" },
-  { value: "long", label: "long" },
-];
+const REMOVAL_ORDER: RemovalType[] = ["none", "own_with_set", "own_no_set", "foreign"];
+const LENGTH_ORDER: Length[] = ["short", "medium", "long", "xlong"];
+const TIER_ORDER: DesignTier[] = ["simple", "standard", "detailed", "intricate"];
 
-const DESIGN_OPTIONS: { value: DesignTier; label: string; description: string }[] = [
-  { value: "simple", label: "tier 1", description: "simple, minimal charms" },
-  { value: "standard", label: "tier 2", description: "complex, multiple charms" },
-  { value: "intricate", label: "tier 3", description: "intricate, 3D elements, layered designs" },
-];
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      width="12"
+      height="8"
+      viewBox="0 0 12 8"
+      fill="none"
+      xmlns="http://www.w3.org/2000/svg"
+      className={`flex-shrink-0 transition-transform duration-150 ${open ? "rotate-180" : ""}`}
+    >
+      <path
+        d="M1 1.5L6 6.5L11 1.5"
+        stroke="#F3EFE9"
+        strokeWidth="1.6"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </svg>
+  );
+}
 
 export default function BookingPage() {
   const router = useRouter();
   const [removalType, setRemovalType] = useState<RemovalType>("none");
   const [length, setLength] = useState<Length>("short");
   const [designTier, setDesignTier] = useState<DesignTier>("simple");
+  const [openSection, setOpenSection] = useState<SectionKey | null>(null);
 
   const price = calculatePrice({ removalType, length, designTier });
 
@@ -35,82 +53,161 @@ export default function BookingPage() {
     router.push(`/booking/schedule?${params.toString()}`);
   }
 
+  const sections: {
+    key: SectionKey;
+    label: string;
+    selectedTitle: string;
+  }[] = [
+    { key: "removal", label: "removal", selectedTitle: REMOVAL_INFO[removalType].title },
+    { key: "length", label: "length", selectedTitle: LENGTH_INFO[length].title },
+    { key: "tier", label: "design tier", selectedTitle: DESIGN_INFO[designTier].title },
+  ];
+
   return (
-    <section className="max-w-xl mx-auto px-6 py-16">
-      <h1 className="font-heading font-bold text-3xl text-cream mb-8">Build your set</h1>
+    <section className="max-w-md mx-auto px-6 py-16">
+      <p className="text-sage text-xs font-semibold tracking-wide mb-1.5">
+        booking · step 1 of 2
+      </p>
+      <h1 className="font-display italic text-3xl text-cream mb-8">
+        build your set
+      </h1>
 
-      <div className="space-y-6">
-        <div>
-          <label className="block text-sm text-sage mb-2">
-            Do you need removal?
-          </label>
-          <select
-            value={removalType}
-            onChange={(e) => setRemovalType(e.target.value as RemovalType)}
-            className="w-full bg-surface text-cream border border-white/10 rounded-lg px-4 py-3"
-          >
-            {REMOVAL_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+      <div className="space-y-7">
+        {sections.map((section) => {
+          const isOpen = openSection === section.key;
+          return (
+            <div key={section.key}>
+              <span className="block text-sage text-sm font-semibold tracking-wide uppercase mb-2">
+                {section.label}
+              </span>
 
-        <div>
-          <label className="block text-sm text-sage mb-2">Length</label>
-          <select
-            value={length}
-            onChange={(e) => setLength(e.target.value as Length)}
-            className="w-full bg-surface text-cream border border-white/10 rounded-lg px-4 py-3"
-          >
-            {LENGTH_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+              <button
+                type="button"
+                onClick={() => setOpenSection(isOpen ? null : section.key)}
+                className="w-full text-left bg-surface rounded-2xl px-[18px] py-4 flex items-center justify-between gap-3.5"
+              >
+                <span className="font-body font-semibold text-base text-cream truncate">
+                  {section.selectedTitle}
+                </span>
+                <ChevronIcon open={isOpen} />
+              </button>
 
-        <div>
-          <label className="block text-sm text-sage mb-2">
-            Design complexity
-          </label>
-          <select
-            value={designTier}
-            onChange={(e) => setDesignTier(e.target.value as DesignTier)}
-            className="w-full bg-surface text-cream border border-white/10 rounded-lg px-4 py-3"
-          >
-            {DESIGN_OPTIONS.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label} — {opt.description}
-              </option>
-            ))}
-          </select>
-        </div>
+              {isOpen && (
+                <div className="flex flex-col gap-2 pt-2.5 px-1">
+                  {section.key === "removal" &&
+                    REMOVAL_ORDER.map((value) => {
+                      const info = REMOVAL_INFO[value];
+                      const isSelected = removalType === value;
+                      return (
+                        <OptionCard
+                          key={value}
+                          isSelected={isSelected}
+                          title={info.title}
+                          meta={info.meta}
+                          price={info.price === null ? null : `$${info.price}`}
+                          onClick={() => setRemovalType(value)}
+                        />
+                      );
+                    })}
+
+                  {section.key === "length" &&
+                    LENGTH_ORDER.map((value) => {
+                      const info = LENGTH_INFO[value];
+                      const isSelected = length === value;
+                      return (
+                        <OptionCard
+                          key={value}
+                          isSelected={isSelected}
+                          title={info.title}
+                          meta={info.meta}
+                          price={`$${info.price}`}
+                          onClick={() => setLength(value)}
+                        />
+                      );
+                    })}
+
+                  {section.key === "tier" &&
+                    TIER_ORDER.map((value) => {
+                      const info = DESIGN_INFO[value];
+                      const isSelected = designTier === value;
+                      return (
+                        <OptionCard
+                          key={value}
+                          isSelected={isSelected}
+                          title={info.title}
+                          meta={info.meta}
+                          price={`+$${info.price}`}
+                          onClick={() => setDesignTier(value)}
+                        />
+                      );
+                    })}
+                </div>
+              )}
+            </div>
+          );
+        })}
       </div>
 
-      <div className="mt-10 bg-surface rounded-xl p-6">
-        <div className="flex justify-between text-sage text-sm mb-1">
-          <span>Starting at</span>
-          <span>${price.total.toFixed(2)}+</span>
-        </div>
-        <div className="flex justify-between text-cream font-medium text-lg mb-2">
-          <span>Deposit due</span>
-          <span>${price.deposit.toFixed(2)}</span>
-        </div>
-        <p className="text-sage text-xs leading-relaxed">
-          Final price may be higher depending on design complexity and
-          supplies used — the deposit above is a flat rate.
-        </p>
+      <div className="mt-8 bg-surface rounded-2xl px-[22px] py-5 flex items-center justify-between">
+        <span className="text-sage text-xl">total</span>
+        <span className="text-cream font-semibold text-xl">
+          ${price.total.toFixed(2)}
+        </span>
       </div>
 
       <button
         onClick={handleContinue}
-        className="mt-8 w-full bg-lotus text-ink py-3 rounded-full font-medium hover:opacity-90 transition-opacity"
+        className="mt-8 w-full bg-lotus text-ink py-4 rounded-full font-semibold text-[15px] hover:opacity-90 transition-opacity"
       >
         continue to time slot
       </button>
     </section>
+  );
+}
+
+function OptionCard({
+  isSelected,
+  title,
+  meta,
+  price,
+  onClick,
+}: {
+  isSelected: boolean;
+  title: string;
+  meta: string;
+  price: string | null;
+  onClick: () => void;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={`w-full text-left rounded-xl px-4 py-3.5 flex items-start justify-between gap-3.5 transition-colors ${
+        isSelected
+          ? "bg-[#1C2A26] shadow-[inset_0_0_0_1.5px_#E3B8BE]"
+          : "bg-white/[0.03] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.08)]"
+      }`}
+    >
+      <div className="flex flex-col items-start gap-1 text-left min-w-0">
+        <span className="font-body font-semibold text-[15px] text-cream">{title}</span>
+        <span className="text-xs leading-relaxed text-sage">{meta}</span>
+        {price !== null && (
+          <span
+            className={`mt-0.5 text-xs font-semibold ${
+              price.startsWith("+") ? "text-[#C9958E]" : "text-sage"
+            }`}
+          >
+            {price}
+          </span>
+        )}
+      </div>
+      <span
+        className={`flex-shrink-0 mt-0.5 w-[17px] h-[17px] rounded-full border flex items-center justify-center ${
+          isSelected ? "border-lotus" : "border-white/25"
+        }`}
+      >
+        {isSelected && <span className="w-[7px] h-[7px] rounded-full bg-lotus" />}
+      </span>
+    </button>
   );
 }

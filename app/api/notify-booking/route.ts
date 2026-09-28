@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabaseAdmin";
 import { resend } from "@/lib/resend";
+import { buildBookingNotificationEmail } from "@/lib/emailTemplates";
 
 export async function POST(request: NextRequest) {
   const { booking_id } = await request.json();
@@ -26,33 +27,25 @@ export async function POST(request: NextRequest) {
       from: "Nailbech Booking <onboarding@resend.dev>", // swap once a real domain is verified in Resend
       to: process.env.BECKY_EMAIL!,
       subject: `New booking — ${booking.client_name}`,
-      html: `
-        <div style="font-family: sans-serif; max-width: 480px; margin: 0 auto;">
-          <h2>New booking request</h2>
-          <p><strong>${booking.client_name}</strong> booked an appointment.</p>
-          <ul>
-            <li>Date: ${booking.appointment_date}</li>
-            <li>Time: ${booking.appointment_time}</li>
-            <li>Length: ${booking.length}</li>
-            <li>Design: ${booking.design_tier}</li>
-            <li>Removal: ${booking.removal_type}</li>
-            <li>Total: $${booking.price}</li>
-            <li>Deposit due: $${booking.deposit_amount}</li>
-            <li>Phone: ${booking.client_phone}</li>
-            <li>Email: ${booking.client_email}</li>
-          </ul>
-          <p>Once you've received the deposit via Zelle/Apple Cash, tap below to confirm — this adds it to your calendar and sends the client a calendar invite too.</p>
-          <a href="${confirmUrl}"
-             style="display:inline-block; background:#E3B8BE; color:#0E1917; padding:12px 24px; border-radius:999px; text-decoration:none; font-weight:600;">
-            Confirm Deposit Received
-          </a>
-        </div>
-      `,
+      html: buildBookingNotificationEmail(
+        {
+          clientName: booking.client_name,
+          clientPhone: booking.client_phone,
+          clientEmail: booking.client_email,
+          clientInstagram: booking.client_instagram,
+          appointmentDate: booking.appointment_date,
+          appointmentTime: booking.appointment_time,
+          length: booking.length,
+          designTier: booking.design_tier,
+          removalType: booking.removal_type,
+          price: booking.price,
+          depositAmount: booking.deposit_amount,
+        },
+        confirmUrl
+      ),
     });
   } catch (err) {
     console.error("notify-booking email error:", err);
-    // Don't fail the booking itself just because the notification email
-    // failed — the booking already exists in the database either way.
     return NextResponse.json({ warning: "Booking saved, but notification email failed to send." });
   }
 
