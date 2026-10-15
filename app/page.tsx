@@ -5,13 +5,20 @@ export default function HomePage() {
   return (
     <section className="max-w-2xl mx-auto px-6 py-20 text-center">
       <h1 className="font-heading font-bold text-4xl md:text-5xl text-cream leading-tight">
-        Gel-X manicures at UCSD
+        Gel-X manicures
       </h1>
 
       <p className="mt-6 text-sage leading-relaxed">
-        Hi, I'm Becky, a second-year student at UCSD and gel-x nail technician. I specialize
-        in long-lasting, natural-looking extensions, built and finished with
-        care right here on campus.
+        hi! my name is becky, thank you for visiting my website and choosing to book with me˚˖ ᵎᵎ 
+        if you have any questions regarding booking, price, design, etc., 
+        please don't hesitate to drop me a message on instagram (@nailbech) and 
+        I'll get back to you as soon as I can ⊹ ࣪ ˖
+
+        with love, 
+        becky
+        nailbech 
+        ・✿・
+
       </p>
 
       <div className="mt-10 flex justify-center gap-4">
