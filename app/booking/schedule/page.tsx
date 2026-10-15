@@ -240,7 +240,7 @@ function ScheduleForm() {
             <div className="border-t border-white/10 pt-3">
               <div className="flex justify-between text-sm">
                 <span className="text-sage">Total</span>
-                <span className="font-semibold text-cream">${price.total.toFixed(2)}</span>
+                <span className="font-semibold text-lotus">${price.total.toFixed(2)}</span>
               </div>
             </div>
 

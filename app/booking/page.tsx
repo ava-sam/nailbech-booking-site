@@ -150,7 +150,7 @@ export default function BookingPage() {
 
       <div className="mt-8 bg-surface rounded-2xl px-[22px] py-5 flex items-center justify-between">
         <span className="text-sage text-xl">total</span>
-        <span className="text-cream font-semibold text-xl">
+        <span className="text-lotus font-semibold text-xl">
           ${price.total.toFixed(2)}
         </span>
       </div>
