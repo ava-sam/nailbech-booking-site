@@ -192,13 +192,7 @@ function OptionCard({
         <span className="font-body font-semibold text-[15px] text-cream">{title}</span>
         <span className="text-xs leading-relaxed text-sage">{meta}</span>
         {price !== null && (
-          <span
-            className={`mt-0.5 text-xs font-semibold ${
-              price.startsWith("+") ? "text-[#C9958E]" : "text-sage"
-            }`}
-          >
-            {price}
-          </span>
+          <span className="mt-0.5 text-xs font-semibold text-lotus">{price}</span>
         )}
       </div>
       <span
