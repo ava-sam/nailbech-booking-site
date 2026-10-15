@@ -23,7 +23,6 @@ const NAV_LINKS = [
   { href: "/", label: "Home" },
   { href: "/booking", label: "Book" },
   { href: "/gallery", label: "Gallery" },
-  { href: "/contact", label: "Contact" },
 ];
 
 export default function RootLayout({
