@@ -15,7 +15,7 @@ export const REMOVAL_INFO: Record<
   none: {
     title: "no removal",
     meta: "一.‧₊˚・✿݁˖",
-    price: null,
+    price: 0,
   },
   own_with_set: {
     title: "removal - previous set",

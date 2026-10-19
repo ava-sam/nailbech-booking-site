@@ -15,7 +15,7 @@ const instrumentSerif = Instrument_Serif({
 });
 
 export const metadata: Metadata = {
-  title: "Nailbech — Gel-X Manicures",
+  title: "nailbech | gel x manicures",
   description: "Book a gel-x appointment on campus.",
 };
 
