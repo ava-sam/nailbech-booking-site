@@ -4,8 +4,13 @@ import Link from "next/link";
 export default function HomePage() {
   return (
     <section className="max-w-4xl mx-auto px-6 py-20 text-center">
-      <h1 className="font-heading font-bold text-4xl md:text-5xl text-cream leading-tight">
-        Gel-X manicures
+      <h1 className="text-cream leading-tight">
+        <span className="block font-heading font-bold text-xl md:text-2xl">
+          welcome to
+        </span>
+        <span className="block font-display italic text-4xl md:text-6xl">
+          nailbech
+        </span>
       </h1>
 
       <p className="mt-6 text-sage leading-relaxed whitespace-pre-line">
