@@ -21,7 +21,6 @@ export default function HomePage() {
 
         with love,
         becky
-        nailbech
         ・✿・`}
 
       </p>
