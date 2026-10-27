@@ -21,6 +21,7 @@ export async function POST(request: NextRequest) {
   }
 
   const confirmUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/bookings/confirm?id=${booking.id}`;
+  const cancelUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/api/bookings/cancel?id=${booking.id}`;
 
   try {
     await resend.emails.send({
@@ -41,7 +42,8 @@ export async function POST(request: NextRequest) {
           price: booking.price,
           depositAmount: booking.deposit_amount,
         },
-        confirmUrl
+        confirmUrl,
+        cancelUrl
       ),
     });
   } catch (err) {

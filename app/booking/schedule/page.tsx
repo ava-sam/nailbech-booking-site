@@ -158,6 +158,10 @@ function ScheduleForm() {
     });
 
     if (insertError) {
+      if (insertError.code === "23505") {
+        setSubmitError("That time was just booked. Please pick another slot.");
+        return;
+      }
       setSubmitError("Something went wrong submitting your booking. Try again.");
       return;
     }

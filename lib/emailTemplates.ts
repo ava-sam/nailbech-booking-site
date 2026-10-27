@@ -58,7 +58,8 @@ function detailRow(label: string, value: string): string {
 
 export function buildBookingNotificationEmail(
   booking: BookingEmailData,
-  confirmUrl: string
+  confirmUrl: string,
+  cancelUrl: string
 ): string {
   return `
   <!DOCTYPE html>
@@ -111,6 +112,10 @@ export function buildBookingNotificationEmail(
                       </td>
                     </tr>
                   </table>
+
+                  <p style="margin: 20px 0 0 0; font-family: Helvetica, Arial, sans-serif; font-size: 12px; line-height: 1.6; color: #94A39C;">
+                    Need to cancel? <a href="${cancelUrl}" style="color: #E3B8BE;">Cancel this booking</a> — this removes it and reopens the time slot.
+                  </p>
                 </td>
               </tr>
               <tr>
